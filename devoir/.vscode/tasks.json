@@ -1,0 +1,15 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Lancer l'application Swing",
+      "type": "shell",
+      "command": "javac -cp '.;mysql-connector-j-8.2.0.jar' App.java; if ($?) { java -cp '.;mysql-connector-j-8.2.0.jar' App }",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    }
+  ]
+}
