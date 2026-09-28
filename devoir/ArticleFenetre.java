@@ -331,7 +331,9 @@ public class ArticleFenetre extends JFrame implements ActionListener
 						}
 				
 				
-						else { zoneTextListArticle.append("\n  article non supprimé ");
+						else { 
+							zoneTextListArticle.append("_______________________");
+							zoneTextListArticle.append(" \n article non supprimé ");
 						throw new ExceptReturnRaise(-1);
 				}
 
