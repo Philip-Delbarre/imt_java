@@ -36,7 +36,7 @@ import java.util.List;
  * */
 
 
-public class ArticleFenetre extends JFrame implements ActionListener
+public class ArticleFenetre extends JFrame implements ActionListener 
 {
 	/**
 	 * numero de version pour classe serialisable
@@ -133,7 +133,7 @@ public class ArticleFenetre extends JFrame implements ActionListener
 	 * Définit la fenêtre et ses composants - affiche la fenêtre
 	 */
 
-    public ArticleFenetre()
+    public ArticleFenetre() throws ExceptReturnRaise
 {
     // On instancie la classe ArticleDAO
     this.monArticleDAO = new ArticleDAO();
@@ -243,17 +243,40 @@ public class ArticleFenetre extends JFrame implements ActionListener
 		int retour; // code de retour de la classe ArticleDAO
 		
 		try {
-			if(ae.getSource()==boutonEnvoi) // Ajout un article
-			{
-				//on crée l'objet message
-				Article a=new Article(this.textFieldDesignation.getText(), Double.parseDouble(this.textFieldPuHt.getText()), Integer.parseInt(this.textFieldQteStock.getText()));
-				// je rajoute juste à la création de l'objet Article la quantité en stock qui est saisie dans le champ texte
-				//on demande à la classe de communication d'envoyer l'article dans la table article
-				retour = monArticleDAO.ajouter(a);
-				// affichage du nombre de lignes ajoutées
-				// dans la bdd pour vérification
-				System.out.println("" + retour + " ligne ajoutée ");
+    if (ae.getSource() == boutonEnvoi) { // Ajout d'un article
+        
+        // Nettoyage de la saisie texte avec .trim()
+        String designationSaisie = this.textFieldDesignation.getText().trim();
+        double puHt = Double.parseDouble(this.textFieldPuHt.getText().trim());
+        int qteStock = Integer.parseInt(this.textFieldQteStock.getText().trim());
+
+        Article a = new Article(designationSaisie, puHt, qteStock);
+        zoneTextListArticle.setText("");
+    	List<Article> liste = monArticleDAO.getListeArticles();
+
+        boolean existe = false;
+
+			for (Article article : liste) {
+				// Vérification de sécurité anti-null
+				if (article.getDesignation() != null) {
+					if (article.getDesignation().trim().equalsIgnoreCase(a.getDesignation())) {
+						existe = true;
+						System.out.println("-> MATCH TROUVÉ ! 'existe' passe à true.");
+						zoneTextListArticle.setText("Cet article est déjà en base.");
+						break; // On s'arrête tout de suite
+					}
+				}
 			}
+
+			System.out.println("Valeur finale de existe : " + existe);
+
+			if (!existe) {
+				retour = monArticleDAO.ajouter(a);
+				System.out.println(retour + " ligne ajoutée.");
+				zoneTextListArticle.setText("Article ajouté avec succès !");
+			}
+		}
+			
 			else if(ae.getSource()==boutonAffichageTousLesArticles)
 			{
 				// on efface l'ancien affichage
@@ -287,6 +310,7 @@ public class ArticleFenetre extends JFrame implements ActionListener
 						zoneTextListArticle.append("\n =========================");
 						//Pour afficher dans la console : System.out.println(a.toString());
 					}
+					
 				else {		
 				
 					System.out.println( "la saisie est erronée ou aucun article n'a trouvé avec cette ref");
@@ -300,16 +324,18 @@ public class ArticleFenetre extends JFrame implements ActionListener
 						if (collecteRef > 0) // besoin de savoir si une reférence a été saisi
 						{
 							Article affiche = monArticleDAO.getArticle(collecteRef);
-							retour = monArticleDAO.supprimer(collecteRef);
-							System.out.print(retour);
-							zoneTextListArticle.append(affiche.toString() + " a été supprimé");
-						
+							
+								retour = monArticleDAO.supprimer(collecteRef) ;
+								System.out.print(retour);
+								zoneTextListArticle.append(affiche.toString() + " a été supprimé");
 						}
-						else { zoneTextListArticle.append("\n  article non supprimé ");}
-
+				
+				
+						else { zoneTextListArticle.append("\n  article non supprimé ");
+						throw new ExceptReturnRaise(-1);
 				}
-		
-		
+
+					}	
 			
 			
 			else if(ae.getSource()==boutonModifierUnArticle)
@@ -356,9 +382,9 @@ public class ArticleFenetre extends JFrame implements ActionListener
 	}
 
 	
-	public static void main(String[] args)
+	/*public static void main(String[] args)
 	{
 		new ArticleFenetre();
-    }
+    }*/
 
 }
